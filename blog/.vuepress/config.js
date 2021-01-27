@@ -1,5 +1,6 @@
 // .vuepress/config.js
 module.exports = {
+  base: '/ii/',
   title: '木鸢', // Title for the site. This will be displayed in the navbar.
   theme: '@vuepress/theme-blog',
   themeConfig: {
