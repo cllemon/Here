@@ -1,6 +1,6 @@
 {
   "name": "ii",
-  "description": "存放技术文章和生活随笔",
+  "description": "Store technical articles and life essays",
   "scripts": {
     "dev": "vuepress dev blog",
     "build": "vuepress build blog"
