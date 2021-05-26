@@ -16,17 +16,24 @@ location: HuaiNan.AnHui
 - [ESLint](https://github.com/eslint/eslint) 常用于检查常见的 JavaScript 代码错误，也可以进行代码风格检查
 - [StyleLint](https://github.com/stylelint/stylelint) 强大的现代化 linter，可帮助您避免错误并在样式中强制执行约定
 
-## 代码规范配置实践
+## 代码规范制定
 
-业内在代码规范化方面，有多种方案，这里主要以 `Prettier + ESlint + StyleLint` 三种工具结合使用的方案展开讨论。
+业内在代码规范化方面，有多种方案，这里主要以 `ESlint` 为主结合多种工具的方案展开讨论。
 
-首先在落地规范配置之前，我们需要制定符合团队的规范，关于制定方式，这里可以推荐一种形式，根据语言类型列一个规范清单，在团队内展开征询，再由核心人员结合征询情况、团队实际情况进行收敛，产出最终的规范。然后在通过工具分享规范配置，打成一个 npm 包，在团队内共享使用。
+首先在落地规范之前，我们需要制定符合团队的规范，关于制定方式，这里可以推荐一种形式，根据语言类型列一个规范清单，在团队内展开征询，再由核心人员结合征询情况、团队实际情况进行收敛，产出最终的规范。然后将这些规范配置打成一个 npm 包，在团队内共享使用。
 
-### 一些共享的配置规范
+## 共享规范配置
 
-#### 写本文时所总结的规范配置（仅供参考）
+### 写本文时所总结的规范配置（仅供参考）
 
-**[prettier config](https://prettier.io/docs/en/options)**
+#### Prettier 规则集
+
+<!-- (https://prettier.io/docs/en/options) -->
+
+<br />
+
+<details>
+  <summary>展开查看定制的 Prettier Config </summary>
 
 ```json
 {
@@ -76,9 +83,18 @@ location: HuaiNan.AnHui
 }
 ```
 
+</details>
+
 我们将定制好的配置规则发一个[配置共享](https://prettier.io/docs/en/configuration.html#sharing-configurations)的包，以便用于各个库。如：「[@coding-standard/prettier-config](https://www.npmjs.com/package/@coding-standard/prettier-config)」。
 
-**[eslint config](https://eslint.org/docs/user-guide/configuring/configuration-files)**
+#### JavaScript 规则集
+
+<!-- [eslint config](https://eslint.org/docs/user-guide/configuring/configuration-files) -->
+
+<br />
+
+<details>
+  <summary>展开查看定制的 ESLint Config</summary>
 
 ```json
 {
@@ -400,9 +416,17 @@ location: HuaiNan.AnHui
 }
 ```
 
-和 prettier 一样，在制定好规则集之后，同样发一个[配置共享](https://eslint.org/docs/developer-guide/shareable-configs)的包，用于团队内的各个项目使用。如：[@coding-standard/eslint-config-recommended](https://www.npmjs.com/package/@coding-standard/eslint-config-recommended)
+</details>
 
-#### 业内比较流行的配置规范
+和 Prettier 一样，在制定好规则集之后，同样发一个[配置共享](https://eslint.org/docs/developer-guide/shareable-configs)的包，用于团队内的各个项目使用。如：[@coding-standard/eslint-config-recommended](https://www.npmjs.com/package/@coding-standard/eslint-config-recommended)
+
+#### TypeScript 规则集
+
+```sh
+TODO:
+```
+
+### 业内比较流行的配置规范
 
 - [eslint-config-recommended](.) 问题 + 样式
 - [airbnb](.) 样式
@@ -411,11 +435,12 @@ location: HuaiNan.AnHui
 
 <br />
 
-有了配置规范之后，如何食用呢？接下来，将分别论述在不同项目类型下，如何接入这些配置。
+有了规范配置之后，如何食用呢？借助 ESLint 这个工具去帮助我们落实这些规范；
+接下来，我将分别论述在不同项目类型下，如何将这些规范配置整合进工具，进而服务于我们的项目。
 
-### 不同项目类型下的配置规范接入
+## 不同项目类型下的规范配置接入实践
 
-#### 纯 JavaScript/TypeScript 实现的基础库的规范配置实践
+### 纯 JS/TS 实现的基础库
 
 #### 工具安装
 
@@ -454,6 +479,7 @@ module.exports = {
     "plugin:prettier/recommended", // https://github.com/prettier/eslint-plugin-prettier#recommended-configuration
   ],
   parserOptions: {
+    ecmaVersion: 12,
     sourceType: "module",
   },
   rules: {
@@ -478,36 +504,19 @@ module.exports = {
 #### 适配 TS 的改造
 
 ```diff
-// 安装两个 ts 解析相关的包
-+ // npm i -D @typescript-eslint/parser@latest @typescript-eslint/eslint-plugin@latest
++ // 安装 ts 解析器和 ts 规则集
++ // npm i -D @typescript-eslint/parser@latest
++ // npm i -D @typescript-eslint/eslint-plugin@latest
 
 // .eslintrc.js
 module.exports = {
-  root: true,
-  env: {
-    es2021: true,
-    browser: true,
-    node: true,
-  },
-  globals: {
-    process: true,
-    module: true,
-  },
+
   extends: [
     "@coding-standard/eslint-config-recommended",
 +   "plugin:@typescript-eslint/recommended", // https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/README.md
     "plugin:prettier/recommended", // https://github.com/prettier/eslint-plugin-prettier#recommended-configuration
   ],
-+ parser: "@typescript-eslint/parser",
-  parserOptions: {
-+   ecmaVersion: 12,
-    sourceType: "module",
-  },
-+ plugins: ["@typescript-eslint"],
-  rules: {
-    "no-console": process.env.NODE_ENV !== "production" ? "always" : "error",
-    "no-debugger": process.env.NODE_ENV !== "production" ? "always" : "error",
-  },
+
 };
 ```
 
@@ -525,15 +534,12 @@ TODO:
 
 ### React Application
 
-## 规范化项目提交日志
+```sh
+TODO:
+```
+
+## 规范化项目提交流程
 
 ```sh
-# 针对为 Vue 生态实现的一些库
-~/cwd : npm i -D eslint-plugin-vue
-
-# 针对为 React 生态实现的一些库
-~/cwd : npm i -D eslint-plugin-react
-
-# 使用 TypeScript 语言
-~/cwd : npm i -D @typescript-eslint/eslint-plugin
+TODO:
 ```
